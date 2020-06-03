@@ -1,5 +1,8 @@
+import json
 import os
 from pathlib import Path
+
+from flask import g
 
 
 class Config:
@@ -9,7 +12,16 @@ class Config:
 
     @classmethod
     def init_app(cls, app):
-        pass
+        data_path = cls.get_storage_path()
+        if not data_path.exists() or not data_path.is_file():
+            raise RuntimeError(f"Cannot load data from the file {data_path}")
+
+        with open(data_path, encoding='utf-8') as f:
+            data = json.load(f)
+
+        with app.app_context():
+            g.goals = data.get('goals')
+            g.teaches = data.get('teaches')
 
     @classmethod
     def get_storage_path(cls):
