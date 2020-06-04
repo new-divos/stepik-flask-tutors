@@ -10,7 +10,7 @@ class Storage:
             cls.__instance = super(Storage, cls).__new__(cls)
 
         if not hasattr(cls, '__days_of_week'):
-            cls.__days_of_week = OrderedDict([
+            cls.__weekdays = OrderedDict([
                 ("mon", "Понедельник"),
                 ("tue", "Вторник"),
                 ("wed", "Среда"),
@@ -42,5 +42,5 @@ class Storage:
         return self.__cache.get('teachers', [])
 
     @property
-    def days_of_week(self):
-        return self.__days_of_week
+    def weekdays(self):
+        return self.__weekdays
