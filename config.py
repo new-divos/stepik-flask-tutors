@@ -20,8 +20,9 @@ class Config:
             data = json.load(f)
 
         with app.app_context():
-            g.goals = data.get('goals')
-            g.teaches = data.get('teaches')
+            g.data_path = data_path
+            g.goals = data.get('goals', [])
+            g.teaches = data.get('teaches', [])
 
     @classmethod
     def get_storage_path(cls):

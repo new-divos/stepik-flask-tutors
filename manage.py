@@ -21,7 +21,10 @@ cli = FlaskGroup(app)
 @app.cli.command('create_storage')
 def create_storage():
     data = {
-        "goals": goals,
+        "goals": [{
+            "code": code,
+            "title": title,
+        } for code, title in goals.items()],
         "teachers": teachers,
     }
 
