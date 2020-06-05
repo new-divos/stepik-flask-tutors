@@ -13,7 +13,14 @@ class Storage:
                 ("fri", "Пятница"),
                 ("sat", "Суббота"),
                 ("sun", "Воскресение"),
-            ])
+    ])
+
+    __opportunities = [
+        ("op1", "1-2 часа в неделю"),
+        ("op2", "3-5 часов в неделю"),
+        ("op3", "5-7 часов в неделю"),
+        ("op4", "7-10 часов в неделю"),
+    ]
 
     def __new__(cls):
         if not hasattr(cls, '_Storage__instance'):
@@ -47,6 +54,10 @@ class Storage:
     @property
     def weekdays(self):
         return self.__weekdays
+
+    @property
+    def opportunities(self):
+        return self.__opportunities
 
     def update(self):
         with open(current_app.config['APP_STORAGE_PATH'], 'w', encoding='utf-8') as f:

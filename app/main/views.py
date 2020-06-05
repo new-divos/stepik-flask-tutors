@@ -5,13 +5,12 @@ from flask import abort, flash, redirect, render_template, url_for
 
 from . import main
 from .storage import Storage
-from .forms import BookingForm
+from .forms import BookingForm, RequestForm
 
 
 @main.route('/')
 def index():
     storage = Storage()
-    print(storage)
     teachers = sample(storage.teachers, k=6)
     teachers.sort(key=lambda item: item['rating'], reverse=True)
 
@@ -120,7 +119,10 @@ def render_booking_done():
 
 @main.route('/request/')
 def render_request():
-    return 'It works!'
+    storage = Storage()
+    form = RequestForm(storage)
+
+    return render_template('request.html', form=form)
 
 
 @main.route('/request_done/')
