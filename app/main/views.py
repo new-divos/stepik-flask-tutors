@@ -125,6 +125,34 @@ def render_request():
     return render_template('request.html', form=form)
 
 
-@main.route('/request_done/')
+@main.route('/request_done/', methods=('POST', ))
 def render_request_done():
-    return 'It works!'
+    storage = Storage()
+    form = RequestForm(storage)
+
+    if form.validate_on_submit():
+        code = form.client_goal.data
+        goal = next((g['title'] for g in storage.goals if g['code'] == code), None)
+        if goal is None:
+            abort(404)
+
+        code = form.client_opportunity.data
+        opportunity = next((o[1] for o in storage.opportunities if o[0] == code), None)
+        if opportunity is None:
+            abort(404)
+
+        name = form.client_name.data.strip()
+        phone = form.client_phone.data.strip()
+
+        return render_template('request_done.html',
+                               goal=goal,
+                               opportunity=opportunity,
+                               name=name,
+                               phone=phone)
+
+    else:
+        for field_errors in form.errors.values():
+            for error in field_errors:
+                flash(error, 'error')
+
+        return redirect(url_for('main.render_request'))
