@@ -5,12 +5,7 @@ from flask import current_app
 
 
 class Storage:
-    def __new__(cls):
-        if not hasattr(cls, '__instance'):
-            cls.__instance = super(Storage, cls).__new__(cls)
-
-        if not hasattr(cls, '__days_of_week'):
-            cls.__weekdays = OrderedDict([
+    __weekdays = OrderedDict([
                 ("mon", "Понедельник"),
                 ("tue", "Вторник"),
                 ("wed", "Среда"),
@@ -20,18 +15,26 @@ class Storage:
                 ("sun", "Воскресение"),
             ])
 
-        if not hasattr(cls, '__cache'):
+    def __new__(cls):
+        if not hasattr(cls, '_Storage__instance'):
+            cls.__instance = super(Storage, cls).__new__(cls)
+
+        if not hasattr(cls, '_Storage__cache'):
             cls.__cache = {'goals': [], 'teachers': []}
 
         if not cls.__cache.get('goals') or not cls.__cache.get('teachers'):
-            try:
-                with open(current_app.config['APP_STORAGE_PATH'], encoding='utf-8') as f:
-                    cls.__cache = json.load(f)
-
-            except OSError:
-                cls.__cache = {'goals': [], 'teachers': []}
+            cls.load()
 
         return cls.__instance
+
+    @classmethod
+    def load(cls):
+        try:
+            with open(current_app.config['APP_STORAGE_PATH'], encoding='utf-8') as f:
+                cls.__cache = json.load(f)
+
+        except OSError:
+            cls.__cache = {'goals': [], 'teachers': []}
 
     @property
     def goals(self):
@@ -44,3 +47,7 @@ class Storage:
     @property
     def weekdays(self):
         return self.__weekdays
+
+    def update(self):
+        with open(current_app.config['APP_STORAGE_PATH'], 'w', encoding='utf-8') as f:
+            json.dump(self.__cache, f, indent=4, ensure_ascii=False)

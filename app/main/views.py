@@ -1,7 +1,7 @@
 from collections import OrderedDict
 from random import sample
 
-from flask import abort, render_template
+from flask import abort, flash, redirect, render_template, url_for
 
 from . import main
 from .storage import Storage
@@ -11,6 +11,7 @@ from .forms import BookingForm
 @main.route('/')
 def index():
     storage = Storage()
+    print(storage)
     teachers = sample(storage.teachers, k=6)
     teachers.sort(key=lambda item: item['rating'], reverse=True)
 
@@ -61,11 +62,9 @@ def render_booking(id, code, hour):
         abort(404)
 
     time = f'{hour}:00'
-    if time in teacher['free'].get(code, dict()):
-        if not teacher['free'][code].get(time, False):
-            abort(404)
-    else:
-        abort(404)
+    if time not in teacher['free'].get(code, dict()) or \
+            not teacher['free'][code].get(time, False):
+        return redirect(url_for('main.render_profile', id=id))
 
     form = BookingForm()
     return render_template('booking.html',
@@ -75,9 +74,48 @@ def render_booking(id, code, hour):
                            form=form)
 
 
-@main.route('/booking_done/')
+@main.route('/booking_done/', methods=('POST', ))
 def render_booking_done():
-    return 'It works!'
+    storage = Storage()
+    form = BookingForm()
+
+    id = int(form.client_teacher.data)
+    code = form.client_weekday.data
+    time = form.client_time.data
+
+    if form.validate_on_submit():
+        teacher = next((t for t in storage.teachers if t['id'] == id), None)
+        if teacher is None:
+            abort(404)
+
+        weekday = storage.weekdays.get(code)
+        if weekday is None:
+            abort(404)
+
+        if time not in teacher['free'].get(code, dict()) or \
+                not teacher['free'][code].get(time, False):
+            return redirect(url_for('main.render_profile', id=id))
+
+        name = form.client_name.data.strip()
+        phone = form.client_phone.data.strip()
+
+        teacher['free'][code][time] = False
+        storage.update()
+
+        return render_template('booking_done.html',
+                               teacher=teacher,
+                               weekday=weekday,
+                               time=time,
+                               name=name,
+                               phone=phone)
+
+    else:
+        for field_errors in form.errors.values():
+            for error in field_errors:
+                flash(error, 'error')
+
+        hour = int(time.split(':')[0])
+        return redirect(url_for('main.render_booking', id=id, code=code, hour=hour))
 
 
 @main.route('/request/')
