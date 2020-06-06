@@ -9,7 +9,8 @@ bootstrap = Bootstrap()
 def create_app(config_cls):
     app = Flask(__name__)
     app.config.from_object(config_cls)
-    config_cls.init_app(app)
+    if hasattr(config_cls, 'init_app') and callable(config_cls.init_app):
+        config_cls.init_app(app)
 
     bootstrap.init_app(app)
 
