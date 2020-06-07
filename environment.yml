@@ -7,6 +7,7 @@ dependencies:
   - flask=1.1
   - pip
   - pip:
+      - boto3
       - flask-bootstrap4
       - flask-wtf
       - gunicorn

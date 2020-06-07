@@ -3,6 +3,7 @@
 import json
 import os
 
+import boto3
 from flask.cli import FlaskGroup
 
 from app import create_app
@@ -28,11 +29,25 @@ def create_storage():
         "teachers": teachers,
     }
 
-    data_path = current_config.get_storage_path()
-    with open(data_path, 'w', encoding='utf-8') as f:
-        json.dump(data, f, indent=4, ensure_ascii=False)
+    if current_config.APP_STORAGE_LOCATION == 'local':
+        data_path = current_config.get_storage_path()
+        with open(data_path, 'w', encoding='utf-8') as f:
+            json.dump(data, f, indent=4, ensure_ascii=False)
 
-    print(f"The data were written to {data_path}")
+        print(f"The data were written to {data_path}")
+
+    elif current_config.APP_STORAGE_LOCATION == 's3':
+        s3 = boto3.resource('s3',
+                            region_name=current_config.APP_STORAGE_S3_REGION,
+                            aws_access_key_id=current_config.APP_STORAGE_S3_ACCESS_KEY_ID,
+                            aws_secret_access_key=current_config.APP_STORAGE_S3_SECRET_KEY_ID)
+
+        s3.Object(current_config.APP_STORAGE_S3_BUCKET,
+                  current_config.APP_STORAGE_FILE).put(Body=json.dumps(data,
+                                                                       indent=4,
+                                                                       ensure_ascii=False))
+
+        print(f"The data were written to s3 bucket {current_config.APP_STORAGE_S3_BUCKET}")
 
 
 if __name__ == '__main__':
