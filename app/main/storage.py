@@ -86,3 +86,5 @@ class Storage:
                       current_app.config['APP_STORAGE_FILE']).put(Body=json.dumps(self.__cache,
                                                                                   indent=4,
                                                                                   ensure_ascii=False))
+
+        self.__class__.load()
