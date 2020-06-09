@@ -4,6 +4,8 @@ from pathlib import Path
 
 class Config:
     SECRET_KEY = os.getenv('SECRET_KEY', ":'(")
+    APP_STATIC_DIR = Path(os.getenv('APP_STATIC_DIR',
+                                    str(Path(__file__).parent / 'app' / 'static')))
     APP_STORAGE_DIR = Path(os.getenv('APP_STORAGE_DIR', str(Path.cwd())))
     APP_STORAGE_FILE = os.getenv('APP_STORAGE_FILE', 'data.json')
     APP_STORAGE_LOCATION = os.getenv('APP_STORAGE_LOCATION', 'local')

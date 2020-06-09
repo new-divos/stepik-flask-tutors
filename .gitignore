@@ -203,3 +203,4 @@ fabric.properties
 
 # Project
 data.json
+.env.*

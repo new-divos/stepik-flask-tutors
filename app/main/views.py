@@ -1,7 +1,15 @@
 from collections import OrderedDict
 from random import sample
 
-from flask import abort, flash, redirect, render_template, url_for
+from flask import (
+    abort,
+    current_app,
+    flash,
+    redirect,
+    render_template,
+    send_from_directory,
+    url_for,
+)
 
 from . import main
 from .storage import Storage
@@ -156,3 +164,8 @@ def render_request_done():
                 flash(error, 'error')
 
         return redirect(url_for('main.render_request'))
+
+
+@main.route('/static/<path:filename>')
+def staticfiles(filename):
+    return send_from_directory(current_app.config['APP_STATIC_DIR'], filename)
