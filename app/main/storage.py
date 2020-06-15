@@ -46,13 +46,17 @@ class Storage:
                 cls.__cache = {'goals': [], 'teachers': []}
 
         elif current_app.config['APP_STORAGE_LOCATION'] == 's3':
-            s3 = boto3.resource('s3',
-                                region_name=current_app.config['APP_STORAGE_S3_REGION'],
-                                aws_access_key_id=current_app.config['APP_STORAGE_S3_ACCESS_KEY_ID'],
-                                aws_secret_access_key=current_app.config['APP_STORAGE_S3_SECRET_KEY_ID'])
+            s3 = boto3.resource(
+                's3',
+                region_name=current_app.config['APP_STORAGE_S3_REGION'],
+                aws_access_key_id=current_app.config['APP_STORAGE_S3_ACCESS_KEY_ID'],
+                aws_secret_access_key=current_app.config['APP_STORAGE_S3_SECRET_KEY_ID']
+            )
 
-            data = s3.Object(current_app.config['APP_STORAGE_S3_BUCKET'],
-                             current_app.config['APP_STORAGE_FILE']).get()['Body'].read().decode('utf-8')
+            data = s3.Object(
+                current_app.config['APP_STORAGE_S3_BUCKET'],
+                current_app.config['APP_STORAGE_FILE']
+            ).get()['Body'].read().decode('utf-8')
             cls.__cache = json.loads(data)
 
     @property
@@ -77,14 +81,21 @@ class Storage:
                 json.dump(self.__cache, f, indent=4, ensure_ascii=False)
 
         elif current_app.config['APP_STORAGE_LOCATION'] == 's3':
-            s3 = boto3.resource('s3',
-                                region_name=current_app.config['APP_STORAGE_S3_REGION'],
-                                aws_access_key_id=current_app.config['APP_STORAGE_S3_ACCESS_KEY_ID'],
-                                aws_secret_access_key=current_app.config['APP_STORAGE_S3_SECRET_KEY_ID'])
+            s3 = boto3.resource(
+                's3',
+                region_name=current_app.config['APP_STORAGE_S3_REGION'],
+                aws_access_key_id=current_app.config['APP_STORAGE_S3_ACCESS_KEY_ID'],
+                aws_secret_access_key=current_app.config['APP_STORAGE_S3_SECRET_KEY_ID']
+            )
 
-            s3.Object(current_app.config['APP_STORAGE_S3_BUCKET'],
-                      current_app.config['APP_STORAGE_FILE']).put(Body=json.dumps(self.__cache,
-                                                                                  indent=4,
-                                                                                  ensure_ascii=False))
+            s3.Object(
+                current_app.config['APP_STORAGE_S3_BUCKET'],
+                current_app.config['APP_STORAGE_FILE']
+            ).put(Body=json.dumps(
+                    self.__cache,
+                    indent=4,
+                    ensure_ascii=False
+                )
+            )
 
         self.__class__.load()
